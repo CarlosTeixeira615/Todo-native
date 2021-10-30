@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 
 import { Header } from "../components/Header";
 import { Task, TasksList } from "../components/TasksList";
@@ -10,6 +10,11 @@ export function Home() {
 
   function handleAddTask(newTaskTitle: string) {
     const id = new Date().getTime();
+    const taskExist = tasks.filter((task) => task.title === newTaskTitle);
+    if (taskExist.length != 0) {
+      Alert.alert("Task already exists");
+      return;
+    }
     setTasks([
       ...tasks,
       {
@@ -27,9 +32,32 @@ export function Home() {
       )
     );
   }
+  function handleEditTask(id: number, newTaskTitle: string) {
+    setTasks(
+      tasks.map((task) =>
+        task.id === id ? { ...task, title: newTaskTitle } : task
+      )
+    );
+  }
 
   function handleRemoveTask(id: number) {
-    setTasks(tasks.filter((task) => task.id !== id));
+    Alert.alert(
+      "Deletar",
+      "Tem certeza que quer deletar?",
+      [
+        {
+          text: "Não",
+          style: "cancel",
+        },
+        {
+          text: "Sim",
+          onPress: () => setTasks(tasks.filter((task) => task.id !== id)),
+        },
+      ],
+      {
+        cancelable: true,
+      }
+    );
   }
 
   return (
@@ -39,6 +67,7 @@ export function Home() {
       <TodoInput addTask={handleAddTask} />
 
       <TasksList
+        editTask={handleEditTask}
         tasks={tasks}
         toggleTaskDone={handleToggleTaskDone}
         removeTask={handleRemoveTask}
